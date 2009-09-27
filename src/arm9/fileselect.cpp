@@ -271,41 +271,50 @@ bool FileSelect::SyncToAnki()
     {
             Wifi_AutoConnect();
     }else{ 
-            Wifi_AccessPoint global_connectAP;
-            unsigned char global_wepkeys[4][32];
-            int global_wepkeyid, global_wepmode;
-            int global_dhcp; // 0=none, 1=get IP&dns, 2=get IP&not dns
-            unsigned long global_ipaddr, global_snmask, global_gateway, global_dns1,global_dns2;
-    
-            Wifi_ScanMode();
-            swiWaitForVBlank();
-            swiWaitForVBlank();
-            Wifi_ScanMode(); // scans the surroundings for wifi Access point -> puts the info in an intern list
-            Wifi_AccessPoint ap;
-            int MaxRssi = 0;
-            int Selected = 0;
-            for (int i=0;i<Wifi_GetNumAP(); i++) {
-                    if(Wifi_GetAPData(i,&ap)==WIFI_RETURN_OK) {
-                   
-                            if (ap.rssi > MaxRssi && ap.ssid_len == 8 && memcmp(&ap.ssid,(const char *)prefs->SSID,8) == 0){
-                                    Selected = i;
-                                    MaxRssi = ap.rssi;
-                            }
-                    }
-            }
 
-            Wifi_GetAPData(Selected,&global_connectAP);
-            char Temp[100];
-            sprintf(Temp,"Connecting to %s%3i%%: ",global_connectAP.ssid,(global_connectAP.rssi*100)/0xD0);
+
+
+            char Temp[100];            
+            Wifi_AccessPoint ap;
+            Wifi_AccessPoint BestAp;            
+            int OldMaxRssi ;
+            int MaxRssi = -1;
+            int MaxTries = 30;
+
+            while ((MaxRssi < 60 || OldMaxRssi<MaxRssi) || MaxTries >0){
+                    Wifi_ScanMode(); // scans the surroundings for wifi Access point -> puts the info in an intern list
+                    swiWaitForVBlank();
+                    
+                    OldMaxRssi = MaxRssi;                     
+                    for (int i=0;i<Wifi_GetNumAP(); i++) {
+                                if (Wifi_GetAPData(i,&ap)==WIFI_RETURN_OK && ap.rssi > MaxRssi &&  !strcmp(ap.ssid,prefs->SSID) ) {
+                                        MaxRssi = ap.rssi;
+                                        Wifi_GetAPData(i,&BestAp);
+                                }      
+                        }
+                    MaxTries-= 1;
+            }
+            if (MaxRssi<0){
+                sprintf(Temp,"Can't find any %s access point",prefs->SSID);
+                text->PrintString(Temp);
+                text->BlitToScreen(videobuf_sub);
+                text->ClearBuffer();
+                swiWaitForVBlank();
+                waitForAnyKey();
+                return false;                                
+            }
+            
+            sprintf(Temp,"Connecting to %s (%2i%%): ",BestAp.ssid,(BestAp.rssi*100)/0xD0);
             text->PrintString(Temp);
             text->BlitToScreen(videobuf_sub);
             text->ClearBuffer();
             swiWaitForVBlank();
     
             Wifi_SetIP(0,0,0,0,0);
-            global_wepkeyid=0;
-            global_wepmode=0;
-            Wifi_ConnectAP(&global_connectAP,global_wepmode,global_wepkeyid,global_wepkeys[0]);
+            int wepkeyid=0;
+            int wepmode=0;
+            unsigned char wepkeys[4][32];
+            Wifi_ConnectAP(&BestAp,wepmode,wepkeyid,wepkeys[0]);
 
     
     
@@ -634,7 +643,7 @@ bool FileSelect::SyncToAnki()
             waitForAnyKey();
             return false;            
     }
-    text->PrintString("Syncing the deck named ");
+    text->PrintString("Syncing the deck \"");
     text->BlitToScreen(videobuf_sub);
     text->ClearBuffer();
     swiWaitForVBlank();
@@ -642,9 +651,9 @@ bool FileSelect::SyncToAnki()
     memset(name, 0, len+1);
     recv(fd, name, len, 0);  
     text->PrintString(name);
+    text->PrintString("\"\n");
     text->BlitToScreen(videobuf_sub);
     text->ClearBuffer();
-    text->PrintNewline();
     swiWaitForVBlank();
     
     
@@ -658,17 +667,17 @@ bool FileSelect::SyncToAnki()
     if (frep == NULL) {
         len = -1;
         send(fd, &len, 4, 0);
-        text->PrintString("no rep file to send");
+        text->PrintString("No rep file\n");
     }
     else {
         len = flen(frep);
         if (len == 0) {
             len = -1;
             send(fd, &len, 4, 0);
-            text->PrintString("empty rep file");
+            text->PrintString("Empty rep file\n");
         }
         else {
-            text->PrintString("sending rep file");
+            text->PrintString("Sending rep file");
             text->BlitToScreen(videobuf_sub);
             text->ClearBuffer();
              swiWaitForVBlank();
@@ -691,15 +700,14 @@ bool FileSelect::SyncToAnki()
             }
 
             delete[] rbuf;
-            char temp[8];
-            sprintf(temp, "\n%d", len);
+            char temp[50];
+            sprintf(temp, "\n%d bytes sent\n", len);
             text->PrintString(temp);
-            text->PrintString(" bytes sent\n");
         }
         fclose(frep);
         unlink(rep);
     }
-    text->PrintString("getting srs file");
+    text->PrintString("Getting srs file");
     text->BlitToScreen(videobuf_sub);
     text->ClearBuffer();
     swiWaitForVBlank();
