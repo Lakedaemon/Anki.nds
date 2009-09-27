@@ -1,0 +1,20 @@
+The Anki.nds project is a fork of ankidssync (r6) written by Jake Probst 
+see http://digital-haze.net/ankidssync.php
+
+It brings a few additional features : 
+
+1) Customizable conf file to allow the connection to hotspots with webportal ssl authentification (FreeWifi, Neuf, ...)
+2) Better import of Anki cards (with new/failed/review cards respecting the Anki settings and shedule)
+3) Possibility to insert cards between Cards sharing the same factid.
+4) Saner keys during review
+5) Sync without wifi from inside Anki (with NoWifi-AnkiSync.py)
+
+To Do list : 
+
+0) Remotely command Anki (to browse other decks to sync) 
+1) Implement srs features (less urgent now that more free wifi hotspots are available)
+2) Stream Stats/Card Info from Anki
+3) Implement Info Screens in Anki.nds (to display stats/card/info)
+4) Overhaul Anki.nds Graphic Engine
+5) ship other libs with the source of Anki.nds
+6) Implement touchscreen browsing for people with RSI
