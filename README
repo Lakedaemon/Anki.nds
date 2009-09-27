@@ -1,5 +1,10 @@
-The Anki.nds project is a fork of ankidssync (r6) written by Jake Probst 
-see http://digital-haze.net/ankidssync.php
+Anki.nds allows you to review cards on a Nintendo Ds and 
+to keep in sync with your Anki decks on your main comp, 
+wherevere you are (as long as you can connect to a wifi access point).
+
+Anki.nds is maintained by Olivier Binda (olivier.binda@wanadoo.fr) 
+and hosted at http://github.com/Lakedaemon/Anki.nds
+It is a fork of ankidssync (r6) originally written by Jake Probst (http://digital-haze.net/ankidssync.php)
 
 It brings a few additional features : 
 
@@ -8,6 +13,15 @@ It brings a few additional features :
 3) Possibility to insert cards between Cards sharing the same factid.
 4) Saner keys during review
 5) Sync without wifi from inside Anki (with NoWifi-AnkiSync.py)
+
+Setup : 
+
+1) move the Anki4NDS directory that is in your Anki plugin directory to the root of your nintendo ds filesystem.
+2) With a text editor, modify the settings in Anki4NDS/ankids.conf 
+(there are comments & explanations)
+
+optional) if you plan to only use wifi sync, disable NoWifi-AnkiSync. 
+Inside Anki, you set up that in the menu Setings/Plugins/Startup)
 
 To Do list : 
 
@@ -18,3 +32,4 @@ To Do list :
 4) Overhaul Anki.nds Graphic Engine
 5) ship other libs with the source of Anki.nds
 6) Implement touchscreen browsing for people with RSI
+
