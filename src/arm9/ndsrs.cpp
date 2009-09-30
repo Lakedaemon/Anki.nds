@@ -2,10 +2,19 @@
 #include "card.h"
 
 #include "png.h"
-
+#include <stdio.h>
 Preferences::Preferences()
 {
-    FILE* p = fopen("ankids.conf", "r");
+
+    /*if (!diropen(".") ) {
+                            text->PrintString("Couldn't open the directory");
+                            text->BlitToScreen(videobuf_sub);
+                            text->ClearBuffer();
+                            swiWaitForVBlank(); 
+                            waitForAnyKey();	
+                            return;
+    }*/
+    FILE* p = fopen("Anki.conf", "r");
     char* buf = new char[1024];
     
     todolist = NULL;

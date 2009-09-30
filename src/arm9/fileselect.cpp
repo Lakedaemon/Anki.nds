@@ -23,6 +23,8 @@ FileSelect::FileSelect(Preferences* p)
     
     prefs = p;
     
+
+            
     fcache = new FontCache("default.ttf");
     text = new Text(fcache);
     //text->SetFont("default.ttf");

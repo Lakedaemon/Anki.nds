@@ -16,12 +16,15 @@ It brings a few additional features :
 
 Setup : 
 
-1) move the Anki4NDS directory that is in your Anki plugin directory to the root of your nintendo ds filesystem.
-2) With a text editor, modify the settings in Anki4NDS/ankids.conf 
+1) move the Anki.nds directory that is in your Anki plugin directory to the root of your nintendo ds filesystem.
+2) With a text editor, modify the settings in Anki.nds/Anki.conf 
 (there are comments & explanations)
 
 optional) if you plan to only use wifi sync, disable NoWifi-AnkiSync. 
 Inside Anki, you set up that in the menu Setings/Plugins/Startup)
+
+Don't change the name of the directory "Anki.nds" and put it at the root of your ds filesystem or 
+you'll have a chance to see a Guru meditate.
 
 To Do list : 
 

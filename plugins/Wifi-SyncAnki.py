@@ -75,7 +75,10 @@ def Shuffle(Rows):# We try to have at least "Between" cards between 2 cards shar
         Into = 0
         N = len(Rows)
         while Into < N:
-                M = min(Delayed.keys()) if Delayed else N  
+                if Delayed:
+                        M = min(Delayed.keys()) 
+                else:
+                        M = N  
                 # first gobles a row with priority for delayed cards
                 if M <= Into:
                         Current = Delayed[M].pop(0)

@@ -6,6 +6,9 @@
 #include <string.h>
 #include <time.h>
 
+#include <fat.h>
+#include <sys/dir.h>
+
 #include "util.h"
 #include "../common/fifo.h"
 
