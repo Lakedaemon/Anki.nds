@@ -28,7 +28,7 @@ import struct
 
 
 # limit to the number of cards, Anki.nds will download/review/sync
-Limit = 100
+Limit = 600
 # Anki.nds will download cards sheduled to be review for the next DaysAhead days
 DaysAhead = 2
 # Anki.nds will try to space cards sharing the same factid by inserting Cards in between
@@ -183,10 +183,8 @@ def ScoreCard(id, ease, reps):
         card = mw.deck.cardFromId(id)
         
         # not equal means it was reviewed on anki at some point so ditch the change
-        if card.reps != reps:
-            return
-        
-        mw.deck.answerCard(card, ease)
+        if card.reps == reps:
+            mw.deck.answerCard(card, ease)
 	
 	
 mw.registerPlugin("Syncing with Anki.nds", 667)
