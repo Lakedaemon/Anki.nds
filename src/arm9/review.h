@@ -4,6 +4,7 @@
 #include "ndsrs.h"
 #include "text.h"
 #include "card.h"
+#include "buttons.h"
 
 class Review : public NDSRS {
     private:
@@ -15,11 +16,13 @@ class Review : public NDSRS {
     
         int tindex;
         Card** todo;
-        int score;
+//        int score;
         
         int oldx, oldy;
-        
-        bool display;
+        Buttons* buttons;
+        bool buttonTouched;
+        const char* state;
+//        bool display;
         bool txthinting;
         
         Text* text;
@@ -38,7 +41,7 @@ class Review : public NDSRS {
         
         bool IsDisplayed();
         void TouchScreen();
-        void WriteAnswer();
+        void WriteAnswer(int score);
         
         void DrawLine(int,int,int,int);
     
@@ -48,6 +51,8 @@ class Review : public NDSRS {
         
         void Run();
 };
+
+
 
 
 

@@ -33,8 +33,10 @@ class Text {
         u8*  bufferAlpha;
         u16  bufferW, bufferH;
 
+        void CalcChar(u32 c);
         void PrintChar(u32 c);
         int  WrapString(const char* string, bool draw);
+        void CalcLine(const char* str);
 
     public:
     	u16 lineBreaks[64]; //Value set in WrapString
@@ -70,6 +72,7 @@ class Text {
         u8   GetFontSize();
 
         u8   GetLineHeight();
+	u16  GetStringWidth(const char* str);
         u8   GetStringLines(const char* str);
 
         void SetBuffer(s16 w, s16 h);

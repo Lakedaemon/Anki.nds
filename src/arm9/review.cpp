@@ -11,8 +11,8 @@ Review::Review(Preferences* p)
     
     running = true;
     tindex = -1;
-    score = 1;
-    display = false;
+    //score = 1;
+    //display = false;    Fix this
     txthinting = true;
     answercache = NULL;
     questioncache = NULL;
@@ -21,18 +21,20 @@ Review::Review(Preferences* p)
     
     ClearScreen(BOTH);
     
-    /*text = new Text("default.ttf");
-    text->SetPixelSize(prefs->topfontsize);
-    text->SetScreen(screen_top);
-    text->SetPen(6, 16);
-    text->SetMargins(6, 6, 10, 16);
-    text->SetInvert(true);*/
+
     fcache = new FontCache("default.ttf");
     text = new Text(fcache);
     text->SetBuffer(256, 192);
     text->SetMargins(6,0,0,0);
     text->SetColor(RGB15(0,0,0));
     text->SetFontSize(prefs->topfontsize);
+    
+    
+    buttons = new Buttons();
+    buttonTouched = false;
+//    state = STATE_ASK_QUESTION;
+//    buttons->setState(state);
+    
         
     LoadTodo();
     //Shuffle();
@@ -47,6 +49,7 @@ Review::Review(Preferences* p)
 
 Review::~Review()
 {
+    delete buttons;
     delete text;
     delete fcache;
     for(int i = 0; i < prefs->todo; ++i)
@@ -111,9 +114,9 @@ void Review::DisplayStats()
     text->SetPen(6,186);
     text->PrintString(buf);
 
-    sprintf(buf, "Score: %d", score);
+    /*sprintf(buf, "Score: %d", score);
     text->SetPen(220,186);
-    text->PrintString(buf);
+    text->PrintString(buf);*/
     
     text->BlitToScreen(screen_btm);
 }
@@ -144,8 +147,12 @@ void Review::DrawBottom()
     if (running == false)
         return;
     ClearScreen(BOTTOM);
-    if (display)
+    if (strcmp(state,STATE_SHOW_ANSWER) == 0) {
         DisplayAnswer();
+    }
+    buttons->DrawButtons(text,screen_btm);
+    //if (display)            Fix this
+    //    DisplayAnswer();
     
     DisplayStats();
     DrawScreen(BOTTOM);
@@ -200,9 +207,13 @@ void Review::LoadTodo()
 void Review::NextCard()
 {
     tindex++;
-    score = 1;
+    //score = 1;
     
-    display = false;
+    //display = false;       Fix this
+    state = STATE_ASK_QUESTION;
+    ClearScreen(STAT);
+    DrawScreen(STAT);
+    buttons->SetState(state);
     
     if (questioncache) {
         delete[] questioncache;
@@ -230,18 +241,6 @@ void Review::WriteAnswer()
     fclose(repfile);
 }
 
-/*#define TOUCH_R   0x0001
-#define TOUCH_RU  0x0002
-#define TOUCH_U  0x0004
-#define TOUCH_LU  0x0008
-#define TOUCH_L  0x0010
-#define TOUCH_LD 0x00020
-#define TOUCH_D   0x0040
-#define TOUCH_RD  0x0080
-#define TOUCH_CR  0x0100
-#define TOUCH_CL 0x0200
-int Touch_Down;*/
-
 
 void Review::TouchScreen()
 {
@@ -254,21 +253,36 @@ void Review::TouchScreen()
         ClearScreen(STAT);
         DrawScreen(STAT);
     }
+    
+
+
+    touchPosition touch;
+    touchRead(&touch);
+        
     if (down & KEY_TOUCH) {
+        if (buttons->HandleDown(touch.px,touch.py)) {
+            buttonTouched = true;
+            DrawScreen(BOTTOM);
+        }
+        else {
+            tp_thresh = 30;
+            oldx = touch.px;
+            oldy = touch.py;
+        }
+    }    
+    
+    
+    /*if (down & KEY_TOUCH) {
         tp_thresh = 30;
         touchPosition touch;
         touchRead(&touch);
         
         oldx = touch.px;
-        oldy = touch.py;
-        
-        //if (oldx<32 || oldy<32){
-        //        Touch_Down =(TOUCH_LD);
-        //}//256*192
-        
-        
+        oldy = touch.py;   
         
     }
+    
+    
     if (held & KEY_TOUCH) {
         touchPosition touch;
         touchRead(&touch);
@@ -288,19 +302,114 @@ void Review::TouchScreen()
     }
     if (up & KEY_TOUCH) {
         tp_thresh = 256;
+    }*/
+    
+    
+    
+    
+    
+   if (buttonTouched) {
+        if (held & KEY_TOUCH) {
+            if (buttons->HandleHeld(touch.px,touch.py)) {
+                DrawScreen(BOTTOM);
+            }
+        }
+        if (up & KEY_TOUCH) {
+            const char* button = buttons->HandleUp();
+            if (button != NULL) {
+                DrawScreen(BOTTOM);
+                if (strcmp(button,BUTTON_SHOW_ANSWER) == 0) {
+                    state = STATE_SHOW_ANSWER;
+                    buttons->SetState(state);
+                    DrawBottom();
+                }
+                else if (strcmp(button,BUTTON_CLEAR_DOODLE) == 0) {
+                    ClearScreen(STAT);
+                    DrawScreen(STAT);
+                }
+                else if (strcmp(button,BUTTON_AGAIN) == 0) {
+                    WriteAnswer(1);
+                    NextCard();
+                    if (running) {
+                        DrawTop();
+                        DrawBottom();
+                    }
+                }
+                else if (strcmp(button,BUTTON_HARD) == 0) {
+                    WriteAnswer(2);
+                    NextCard();
+                    if (running) {
+                        DrawTop();
+                        DrawBottom();
+                    }
+                }
+                else if (strcmp(button,BUTTON_GOOD) == 0) {
+                    WriteAnswer(3);
+                    NextCard();
+                    if (running) {
+                        DrawTop();
+                        DrawBottom();
+                    }
+                }
+                else if (strcmp(button,BUTTON_EASY) == 0) {
+                    WriteAnswer(4);
+                    NextCard();
+                    if (running) {
+                        DrawTop();
+                        DrawBottom();
+                    }
+                }
+            }
+            buttonTouched = false;
+        }
     }
+    else {
+        if (held & KEY_TOUCH) {
+            int d = sqrt(((oldx -touch.px)*(oldx-touch.px)) + ((oldy -touch.py)*(oldy-touch.py)));
+        
+            if (buttons->IsInButtonsArea(touch.px,touch.py)) {
+                tp_thresh = 256;
+            }
+            else if (tp_thresh < 100) {
+                if (d < tp_thresh) {
+                    DrawLine(touch.px, touch.py, oldx, oldy);
+                    oldx = touch.px;
+                    oldy = touch.py;
+                }
+            }
+            else {
+                tp_thresh = 30;
+                oldx = touch.px;
+                oldy = touch.py;
+            }
+        }
+        if (up & KEY_TOUCH) {
+            tp_thresh = 256;
+        }
+    } 
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
 }
 
 void Review::Run()
 {   
 
-    int NextMask = 0;
-    int LastMask;
+    /*int NextMask = 0;
+    int LastMask;*/
     while(running) {
         scanKeys();
         int down = keysDown();
         int held = keysHeld();      
-        
+        /*
      if (!display) {
         if (down & (KEY_A|KEY_B|KEY_X|KEY_Y)){
                 display = true;
@@ -354,22 +463,77 @@ void Review::Run()
                     }
                 }
             } 
-      }                                                  
-                
-            if (down & KEY_START) {
-                running = false;
+      }       
+      */
+         
+      
+      
+              if (strcmp(state,STATE_ASK_QUESTION) == 0) {
+            if (down & (KEY_A|KEY_B)) {
+                state = STATE_SHOW_ANSWER;
+                buttons->SetState(state);
+                DrawBottom();
             }
+        }
+        else if (strcmp(state,STATE_SHOW_ANSWER) == 0) {
+            if (down & KEY_A) {
+                WriteAnswer(3);
+                NextCard();
+                if (running) {
+                    DrawTop();
+                    DrawBottom();
+                }
+            }
+            else if (down & KEY_Y) {
+                WriteAnswer(1);
+                NextCard();
+                if (running) {
+                    DrawTop();
+                    DrawBottom();
+                }
+            }
+            else if (down & KEY_X) {
+                WriteAnswer(4);
+                NextCard();
+                if (running) {
+                    DrawTop();
+                    DrawBottom();
+                }
+            }
+            else if (down & KEY_B) {
+                WriteAnswer(2);
+                NextCard();
+                if (running) {
+                    DrawTop();
+                    DrawBottom();
+                }
+             }
+        }
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
 
             if (down & KEY_SELECT) {
                 fifoSendValue32(FIFO_BACKLIGHT, 0);
             }
       
-            if (held == (KEY_L|KEY_R|KEY_X)) {
+            if (held == (KEY_L & KEY_R)) {
                 ScreenShot();
             }
+            if (down & KEY_START) {
+                running = false;
+            }
 
-        TouchScreen();  
-        swiWaitForVBlank();
+            TouchScreen();  
+            swiWaitForVBlank();
     }
 }
 

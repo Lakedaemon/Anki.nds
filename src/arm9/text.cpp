@@ -27,6 +27,11 @@ Text::~Text() {
     if (bufferAlpha) delete[] bufferAlpha;
 }
 
+void Text::CalcChar(u32 chr) {
+    FTC_SBit sbit = cache->GetGlyph(chr);
+    penX = penX + cache->GetAdvance(chr, sbit);
+}
+
 void Text::PrintChar(u32 chr) {
     if (!buffer) {
         //Can't draw if there's no buffer
@@ -109,6 +114,29 @@ void Text::PrintChar(u32 chr) {
 
     //Move pen
     penX = tx;
+}
+
+void Text::CalcLine(const char* str) {
+    int t = 0;
+    while (*str) {
+    	if (visibleChars >= 0 && t >= visibleChars) {
+    		break;
+    	}
+
+        u32 c = '?';
+        int bytes = FontCache::GetCodePoint(str, &c);
+        if (bytes == 0) {
+        	bytes = 1;
+        } else {
+			if (c == '\n' || c == '|') {
+				PrintNewline();
+			} else {
+				CalcChar(c);
+			}
+        }
+		str += bytes;
+		t++;
+    }
 }
 
 void Text::PrintLine(const char* str) {
@@ -337,6 +365,9 @@ int Text::WrapString(const char* string, bool draw) {
                 if (draw) {
                 	PrintLine(tempString);
                 }
+		else {
+			CalcLine(tempString);
+		}
 
             	lastPenX = penX;
             	lastPenY = penY;
@@ -439,6 +470,17 @@ u8 Text::GetFontSize() {
 }
 u8 Text::GetLineHeight() {
 	return cache->GetLineHeight();
+}
+u16 Text::GetStringWidth(const char* str) {
+    s16 saveX = penX;
+    s16 saveY = penY;
+    penX = marginLeft;
+    penY = marginBottom;
+    (u8)WrapString(str, false);
+    u16 result = (u16)(penX - marginLeft);
+    penX = saveX;
+    penX = saveY;
+    return result;
 }
 u8 Text::GetStringLines(const char* str) {
     return (u8)WrapString(str, false);
