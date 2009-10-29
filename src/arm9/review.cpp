@@ -230,7 +230,7 @@ void Review::NextCard()
     }
 }
 
-void Review::WriteAnswer()
+void Review::WriteAnswer(int score)
 {
     FILE* repfile = fopen(prefs->rep, "a");
         
