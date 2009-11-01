@@ -428,9 +428,9 @@ void Review::Run()
                 }    
             }      
             
-            if (down & (KEY_Y)) { // sets score to 0
+            if (down & (KEY_Y)) { // sets score to 1
                 if (display) {
-                    score = 0;
+                    score = 1;
                     WriteAnswer();
                     NextCard();
                     if (running) {
@@ -468,7 +468,7 @@ void Review::Run()
          
       
       
-              if (strcmp(state,STATE_ASK_QUESTION) == 0) {
+       if (strcmp(state,STATE_ASK_QUESTION) == 0) {
             if (down & (KEY_A|KEY_B)) {
                 state = STATE_SHOW_ANSWER;
                 buttons->SetState(state);
@@ -525,7 +525,7 @@ void Review::Run()
                 fifoSendValue32(FIFO_BACKLIGHT, 0);
             }
       
-            if (held == (KEY_L & KEY_R)) {
+            if (held == (KEY_L|KEY_R|KEY_X)) {
                 ScreenShot();
             }
             if (down & KEY_START) {

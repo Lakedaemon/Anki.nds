@@ -68,7 +68,8 @@ void start(void *userData, const XML_Char *el, const XML_Char **attr)
 void end(void *userData, const XML_Char *el)
 {
     if (strcmp(el,"button") == 0) {
-        button = new Button(top,left,bottom,right,fontsize,text,showInfoText,states);
+        button = new Button(top,left,bottom,right,fontsize,text,states);
+        //button = new Button(top,left,bottom,right,fontsize,text,showInfoText,states);  //OL
         buttons->appendElem(button);
         names->appendElem(name);
     }

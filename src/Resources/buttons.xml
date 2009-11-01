@@ -1,0 +1,18 @@
+<buttons>
+   <button name="BShowAnswer" top="150" left="10" bottom="175" right="205" fontsize="16" text="Show answer">
+      <state>AskQuestion</state>
+   </button>
+   <button name="BAgain" top="150" left="10" bottom="175" right="65" fontsize="16" text="Again">
+      <state>ShowAnswer</state>
+   </button>
+   <button name="BHard" top="150" left="68" bottom="175" right="113" fontsize="16" text="Hard">
+      <state>ShowAnswer</state>
+   </button>
+   <button name="BGood" top="150" left="116" bottom="175" right="161" fontsize="16" text="Good">
+      <state>ShowAnswer</state>
+   </button>
+   <button name="BEasy" top="150" left="164" bottom="175" right="205" fontsize="16" text="Easy">
+      <state>ShowAnswer</state>
+   </button>
+   <button name="BClearDoodle" top="155" left="210" bottom="175" right="250" fontsize="12" text="Clear"/>
+</buttons>

@@ -1,5 +1,5 @@
 
-DIRS = ctaocrypt-1.1.0 cyassl-1.1.0
+DIRS = ctaocrypt-1.1.0 cyassl-1.1.0 expat-2.0.1
 
 all:	build
 
