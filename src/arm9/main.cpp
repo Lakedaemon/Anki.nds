@@ -54,7 +54,7 @@ int main(int argc, char** argv)
     srand(time(NULL));
 
     //chdir("ankids");
-chdir("Anki.nds");
+    chdir("Anki");
     //createDefaultFontCache("default.ttf");
 
     while (true) {
